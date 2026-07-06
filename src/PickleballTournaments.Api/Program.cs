@@ -5,6 +5,7 @@ using PickleballTournaments.Api.Endpoints;
 using PickleballTournaments.Api.Scraping;
 using PickleballTournaments.Api.Scraping.AllPickleballTournaments;
 using PickleballTournaments.Api.Scraping.PickleballBrackets;
+using Scalar.AspNetCore;
 
 const string UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 
@@ -66,6 +67,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapOpenApi();
+app.MapScalarApiReference();
 
 app.MapGet("/health", () => Results.Ok("Healthy")).ExcludeFromDescription();
 
