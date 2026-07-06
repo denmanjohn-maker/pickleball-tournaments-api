@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using PickleballTournaments.Api.Data;
 using PickleballTournaments.Api.Endpoints;
@@ -9,11 +10,27 @@ const string UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleW
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Railway injects a dynamic PORT env var and routes traffic to it; unset locally, so this is a no-op in dev.
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 builder.Services.AddOpenApi();
 builder.Services.Configure<ScrapingOptions>(builder.Configuration.GetSection(ScrapingOptions.SectionName));
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+var connectionString = builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException("Missing ConnectionStrings:Default configuration.");
+
+// SQLite creates the .db file itself but not missing parent directories (e.g. a Railway volume mount).
+var sqliteDirectory = Path.GetDirectoryName(new SqliteConnectionStringBuilder(connectionString).DataSource);
+if (!string.IsNullOrEmpty(sqliteDirectory))
+{
+    Directory.CreateDirectory(sqliteDirectory);
+}
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
 builder.Services.AddHttpClient(AllPickleballTournamentsScraper.HttpClientName, client =>
 {
@@ -44,6 +61,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapOpenApi();
+
+app.MapGet("/health", () => Results.Ok("Healthy")).ExcludeFromDescription();
 
 app.MapTournamentEndpoints();
 app.MapCityEndpoints();
