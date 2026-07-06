@@ -11,9 +11,14 @@ const string UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleW
 var builder = WebApplication.CreateBuilder(args);
 
 // Railway injects a dynamic PORT env var and routes traffic to it; unset locally, so this is a no-op in dev.
-var port = Environment.GetEnvironmentVariable("PORT");
-if (!string.IsNullOrEmpty(port))
+var portValue = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(portValue))
 {
+    if (!int.TryParse(portValue, out var port) || port is <= 0 or > 65535)
+    {
+        throw new InvalidOperationException($"PORT environment variable is set to an invalid value: '{portValue}'.");
+    }
+
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
