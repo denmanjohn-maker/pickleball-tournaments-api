@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PickleballTournaments.Api/PickleballTournaments.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PickleballTournaments.Tests/PickleballTournaments.Tests.csproj" />
+  </Folder>
+</Solution>
