@@ -25,11 +25,12 @@ public class ApiIntegrationTests : IClassFixture<ApiIntegrationTests.TestApiFact
         var cities = await client.GetFromJsonAsync<List<CityResponse>>("/api/cities");
 
         Assert.NotNull(cities);
-        Assert.Equal(50, cities!.Count);
+        Assert.Equal(51, cities!.Count);
         Assert.Contains(cities, c => c.Name == "Houston" && c.State == "TX");
         Assert.Contains(cities, c => c.Name == "Las Vegas" && c.State == "NV");
         Assert.Contains(cities, c => c.Name == "Columbus" && c.State == "OH");
         Assert.Contains(cities, c => c.Name == "Charleston" && c.State == "SC");
+        Assert.Contains(cities, c => c.Name == "Chattanooga" && c.State == "TN");
     }
 
     [Fact]
