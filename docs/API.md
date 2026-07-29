@@ -47,7 +47,7 @@ The core entity. Every scraped event is a `Tournament` row tied to one `source`.
 
 ### City
 
-Represents one of the ~25 seeded U.S. metro areas the scrapers search around (see `appsettings.json` → `Cities`), not the free-text `city` field on `Tournament`.
+Represents one of the 51 seeded U.S. metro areas the scrapers search around (see `appsettings.json` → `Cities`), not the free-text `city` field on `Tournament`.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -121,6 +121,8 @@ Single tournament by id, plus its cross-source duplicates.
 
 All enabled metro cities the app tracks, with rolling event counts. No parameters. Not paginated — returns a plain array.
 
+The `Cities` array in `src/PickleballTournaments.Api/appsettings.json` is the coverage inventory. It currently contains 51 geographically distributed U.S. metros. Startup synchronizes additions and coordinate or ZIP updates from this inventory, but intentionally leaves cities omitted from configuration enabled so existing city data and API filters remain available. Disable a city explicitly in the database when it should no longer be scraped.
+
 Response `200 OK`:
 
 ```json
@@ -170,7 +172,7 @@ There is no standardized `ProblemDetails` error envelope in this API. Error resp
 ## Practical notes for building clients
 
 - Always paginate `GET /api/tournaments` using `page`/`pageSize`/`totalCount` from the response — don't assume a fixed page size.
-- The `city` filter only recognizes the ~25 seeded metro area names from `GET /api/cities`; it does not do fuzzy or free-text city matching. To search "near a city", first look up its name via `GET /api/cities`.
+- The `city` filter only recognizes the 51 seeded metro area names from `GET /api/cities`; it does not do fuzzy or free-text city matching. To search "near a city", first look up its name via `GET /api/cities`.
 - `source` values and enum fields (`source`, `trigger`, `status`) are always returned as their string names, never integers.
 - Don't rely on `Tournament.city`/`state` free-text fields for metro-area grouping — use the `city` query parameter (which joins through the metro-city relationship) instead.
 - Canceled tournaments are hidden by default; pass `includeCanceled=true` explicitly if you need them.
